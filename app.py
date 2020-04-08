@@ -1,24 +1,15 @@
 # Importing all the necessary libraries
-# import keras.backend.tensorflow_backend as tb
-# tb._SYMBOLIC_SCOPE.value = True
+import nltk
+nltk.download("stopwords")
+nltk.download('punkt')
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from mysql.connector import Error
 import mysql.connector
-import sys
-import os
 import re
-import csv
-import numpy as np
-import pandas as pd
-import pickle
 from flask_cors import CORS
 from flask import request, jsonify, Flask
-import base64
 from bs4 import BeautifulSoup
-import nltk
-nltk.download("stopwords")
-nltk.download('punkt')
 
 # Declaring Variables
 SERVER_ADDRESS = "localhost"
