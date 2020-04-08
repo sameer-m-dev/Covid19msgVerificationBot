@@ -1,5 +1,7 @@
 create database msgVerificationBot;
+
 use msgVerificationBot;
+
 create table messages(
   msg_id int NOT NULL AUTO_INCREMENT,
   sentence text,
