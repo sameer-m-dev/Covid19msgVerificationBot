@@ -30,8 +30,6 @@ CORS(app)
 sw = set(stopwords.words("english"))
 
 # Function to create and return SQL Connection
-
-
 def sqlConnect():
     try:
         connection = mysql.connector.connect(host=SERVER_ADDRESS,
@@ -43,7 +41,6 @@ def sqlConnect():
         print(e)
         return "Error"
 
-
 # Function to terminat an existing SQL Connection
 def sqlDisconnect(connection, cursor):
     if (connection.is_connected()):
@@ -51,8 +48,6 @@ def sqlDisconnect(connection, cursor):
         connection.close()
 
 # Function to convert a raw text to a string of words
-
-
 def preprocessData(raw_text):
     # The input is a single string (a raw movie review), and
     # the output is a single string (a preprocessed movie review)
@@ -74,8 +69,6 @@ def preprocessData(raw_text):
     return(" ".join(meaningful_words))
 
 # Function to check the cosine similarity between 2 sentences
-
-
 def checkSimilarity(messageFromUser, messageFromDB):
     # Tokenizing Sentences
     messageFromUser_list = set(word_tokenize(messageFromUser))
@@ -213,7 +206,6 @@ def verifyMessage():
 
     # Returning results in JSON Format
     return jsonify({"result": data})
-
 
 if __name__ == '__main__':
     app.run(debug=True, host="localhost", threaded=False)
