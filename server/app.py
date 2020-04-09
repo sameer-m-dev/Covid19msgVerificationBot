@@ -17,7 +17,6 @@ DATABASE_NAME = ""
 DATABASE_USER = ""
 DATABASE_USER_PASSWORD = ""
 MESSAGES_TABLE = "messages"
-# COSINE_THRESHHOLD = 0.8
 
 # Creating a Flask app
 app = Flask(__name__)
@@ -35,7 +34,10 @@ def sqlConnect():
         connection = mysql.connector.connect(host=SERVER_ADDRESS,
                                              database=DATABASE_NAME,
                                              user=DATABASE_USER,
-                                             password=DATABASE_USER_PASSWORD)
+                                             password=DATABASE_USER_PASSWORD,
+                                             charset='utf8',
+                                            use_unicode=True)
+                                             
         return connection
     except Error as e:
         print(e)
@@ -56,10 +58,10 @@ def preprocessData(raw_text):
     review_text = BeautifulSoup(raw_text, features="html.parser").get_text()
     #
     # 2. Remove non-letters
-    letters_only = re.sub("[^a-zA-Z]", " ", review_text)
+    # letters_only = re.sub("[^a-zA-Z]", " ", review_text)
     #
     # 3. Convert to lower case, split into individual words
-    words = letters_only.lower().split()
+    words = review_text.lower().split()
     #
     # 4. Remove Stopwords
     meaningful_words = [w for w in words if not w in sw]
@@ -179,6 +181,7 @@ def verifyMessage():
             for row in data:
                 cosineSimilarityValue = checkSimilarity(
                     messageTransformed, row[1])
+                # Comment the line below before deploying
                 print(cosineSimilarityValue)
                 if float(cosineSimilarityValue) >= float(cosineThreshold):
                     verficationCount += 1
