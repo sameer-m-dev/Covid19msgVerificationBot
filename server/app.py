@@ -17,6 +17,7 @@ DATABASE_NAME = ""
 DATABASE_USER = ""
 DATABASE_USER_PASSWORD = ""
 MESSAGES_TABLE = "messages"
+UNLABELLED_MESSAGES_TABLE = "unlabelled_messages"
 
 # Creating a Flask app
 app = Flask(__name__)
@@ -196,6 +197,17 @@ def verifyMessage():
                 else:
                     return jsonify({"result": "Invalid Message"})
             else:
+                # Creating an SQL Connection
+                connection = sqlConnect()
+                # Creating a new DB Cursor
+                cursor = connection.cursor()
+                # Executing Query
+                cursor.execute("INSERT INTO "+UNLABELLED_MESSAGES_TABLE +
+                           " (sentence) VALUES('"+message+"');")
+                # Committing transaction
+                connection.commit()
+                # Disconnecting SQL connection
+                sqlDisconnect(connection, cursor)
                 return jsonify({"result": "Cannot determine validity of the message at this time. Please try again later"})
         except Exception as e:
             # Printing exception to console
