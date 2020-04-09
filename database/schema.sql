@@ -8,3 +8,9 @@ create table messages(
   truthValue int NOT NULL,
   PRIMARY KEY (msg_id)
 );
+
+create table unlabelled_messages(
+  msg_id int NOT NULL AUTO_INCREMENT,
+  sentence text,
+  PRIMARY KEY (msg_id)
+);
