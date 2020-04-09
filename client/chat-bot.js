@@ -2,12 +2,13 @@ $(function () {
     var INDEX = 0;
     var recognition;
     var uniqueSessionId;
-    var dialogflowUrl = "https://api.dialogflow.com/v1/";
-    var dialogflowAccessToken = "***********REPLACE**********";
+    var COSINE_THRESHOLD = 0.7 // Change as per requirement
+    var pythonApiURL = "http://localhost:5000";
 
     var initializeSession = function () {
         $(".chat-logs").empty();
         uniqueSessionId = getUniqueChatSessionId();
+        generateMessage("Hi, please send the message you would like to verify", 'bot');
         enableInput();
         $("#loading").hide();
     };
@@ -15,7 +16,7 @@ $(function () {
     function sendChatMessage(message) {
         $("#loading").show();
 
-        talkToDialogFlowApi(message);
+        talkToPythonAPI(message);
         generateMessage(message, 'user');
     }
 
@@ -45,35 +46,34 @@ $(function () {
         }, 1000);
     }
 
-    function talkToDialogFlowApi(message) {
+    function talkToPythonAPI(text) {
         $.ajax({
             type: "POST",
-            url: dialogflowUrl + "query?v=20150910",
+            url: pythonApiURL + "/verifyMessage",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + dialogflowAccessToken
-            },
+            // headers: {
+            //     "Authorization": "Bearer " + dialogflowAccessToken
+            // },
             data: JSON.stringify({
-                query: message,
-                lang: "en",
-                sessionId: uniqueSessionId
+                message: text,
+                cosineThreshold: COSINE_THRESHOLD,
             }),
-            success: dialogFlowSuccessResponse,
-            error: dialogFlowErrorResponse
+            success: pythonSuccessResponse,
+            error: pythonErrorResponse
         });
     }
 
-    var dialogFlowSuccessResponse = function (data) {
+    var pythonSuccessResponse = function (data) {
         $("#loading").hide();
         enableInput();
-        generateMessage(data.result.fulfillment.speech, 'bot');
+        // console.log(data.result)
+        generateMessage(data.result, 'bot');
     };
 
-    var dialogFlowErrorResponse = function (data) {
+    var pythonErrorResponse = function (data) {
         $("#loading").hide();
-        disableInput();
-        generateMessage(data.status.errorType, 'bot');
+        generateMessage("Error occured. Please try again later", 'bot');
     };
 
     var enableInput = function () {
@@ -91,7 +91,7 @@ $(function () {
         var msg = $(this).attr("chat-value");
         enableInput();
 
-        talkToDialogFlowApi(msg);
+        talkToPythonAPI(msg);
         generateMessage(msg, 'user');
     });
 

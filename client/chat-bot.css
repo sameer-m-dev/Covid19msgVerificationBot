@@ -72,7 +72,7 @@
     height: 100%;
 }
 
-#chat-circle:before {
+/* #chat-circle:before {
     width: 14px;
     background: #07bd07;
     position: absolute;
@@ -81,7 +81,7 @@
     border-radius: 50%;
     z-index: 99;
     right: -5px;
-}
+} */
 
 #chat-circle {
     position: fixed;
