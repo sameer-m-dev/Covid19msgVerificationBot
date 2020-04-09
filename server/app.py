@@ -12,10 +12,10 @@ from flask import request, jsonify, Flask
 from bs4 import BeautifulSoup
 
 # Declaring Variables
-SERVER_ADDRESS = "localhost"
-DATABASE_NAME = "msgVerificationBot"
-DATABASE_USER = "root"
-DATABASE_USER_PASSWORD = "123456"
+SERVER_ADDRESS = ""
+DATABASE_NAME = ""
+DATABASE_USER = ""
+DATABASE_USER_PASSWORD = ""
 MESSAGES_TABLE = "messages"
 # COSINE_THRESHHOLD = 0.8
 
