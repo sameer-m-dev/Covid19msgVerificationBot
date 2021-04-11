@@ -45,17 +45,19 @@ jobs:
         run: sonar-scanner
           -Dsonar.host.url=${{ secrets.SONAR_URL }}
           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}-client
           -Dsonar.scm.provider=git
+          -Dsonar.sources=client/
       
       - name: 'Run analysis of the server'
         run: sonar-scanner
           -Dsonar.host.url=${{ secrets.SONAR_URL }}
           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}-server
           -Dsonar.scm.provider=git
+          -Dsonar.sources=server/
   
-  build-push-deploy:
+  dev-env:
     runs-on: ubuntu-latest
     environment:
       name: Dev-Sandbox-K8S
