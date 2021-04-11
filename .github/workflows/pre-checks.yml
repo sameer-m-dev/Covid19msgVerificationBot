@@ -1,5 +1,5 @@
 # Start by giving a name to your workflow
-name: Analyze branch
+name: pre-checks
 
 # then define on which event, here a push
 on:
@@ -7,11 +7,12 @@ on:
   # and the target with some regex to match our specific  branch names
     branches:
       - master
+  pull_request:
+      types: [opened, synchronize, reopened]
 
 # We can now build our job
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -28,9 +29,7 @@ jobs:
           ref: ${{ github.REF }}
           fetch-depth: 0
 
-      # Conditional execution can be done, in this case the parameter to use with sonar scanner are different if we are analyzing master or a branch
-      - if: endsWith(github.REF, '/master') != true
-        name: 'Run an analysis of the ${{ github.REF }} branch'
+      - name: 'Run an analysis of the master branch'
         env:
           # to get access to secrets.SONAR_TOKEN, provide GITHUB_TOKEN
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -39,17 +38,5 @@ jobs:
           -Dsonar.host.url=${{ secrets.SONAR_URL }}
           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+          -Dsonar.scm.provider=git
           -Dsonar.branch.name=${GITHUB_REF:11}
-          -Dsonar.scm.provider=git
-
-      - if: endsWith(github.REF, '/master') == true
-        name: 'Run an analysis of the master branch'
-        env:
-          # to get access to secrets.SONAR_TOKEN, provide GITHUB_TOKEN
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
-        run: sonar-scanner
-          -Dsonar.host.url=${{ secrets.SONAR_URL }}
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-          -Dsonar.scm.provider=git
