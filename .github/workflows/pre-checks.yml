@@ -29,7 +29,7 @@ jobs:
           ref: ${{ github.REF }}
           fetch-depth: 0
 
-      - name: 'Run an analysis of the master branch'
+      - name: 'Run an analysis of the branch'
         env:
           # to get access to secrets.SONAR_TOKEN, provide GITHUB_TOKEN
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
