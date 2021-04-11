@@ -1,0 +1,142 @@
+# Start by giving a name to your workflow
+name: pre-checks
+
+# then define on which event, here a push
+on:
+  push:
+  # and the target with some regex to match our specific  branch names
+    branches:
+      - master
+  pull_request:
+      types: [opened, synchronize, reopened]
+
+env:
+  REGISTRY_NAME: devsandbox
+  CLUSTER_NAME: Dev-Sandbox-K8S
+  CLUSTER_RESOURCE_GROUP: Dev-Sandbox
+  NAMESPACE: default
+  SECRET: azure-docker-auth
+  CLIENT_APP_NAME: vss-client
+  SERVER_APP_NAME: vss-server
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # To allow jobs to access secrets
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+
+# We can now build our job
+jobs:
+  sonar-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Use an existing action, you can look in the market place to find what you need and how to use it, to setup the sonar scanner
+      - name: Setup sonar scanner
+        uses: warchant/setup-sonar-scanner@v3
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+
+      # This is to checkout the repository
+      - name: 'Checkout repository on branch: ${{ github.REF }}'
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.REF }}
+          fetch-depth: 0
+
+      # Running Sonar Scans
+      - name: 'Run analysis of the client'
+        run: sonar-scanner
+          -Dsonar.host.url=${{ secrets.SONAR_URL }}
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+          -Dsonar.scm.provider=git
+      
+      - name: 'Run analysis of the server'
+        run: sonar-scanner
+          -Dsonar.host.url=${{ secrets.SONAR_URL }}
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+          -Dsonar.scm.provider=git
+  
+  build-push-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: Dev-Sandbox-K8S
+
+    steps:
+      # This is to checkout the repository
+      - name: 'Checkout repository on branch: ${{ github.REF }}'
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.REF }}
+          fetch-depth: 0
+      
+      # Connect to Azure Container registry (ACR)
+      - name: ACR Login 
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ env.REGISTRY_NAME }}.azurecr.io
+          username: ${{ secrets.REGISTRY_USERNAME }} 
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      
+      # Image build
+      - name: Docker Build
+        run: |
+          docker build . -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CLIENT_APP_NAME }}:${{ github.sha }}
+          docker build . -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.SERVER_APP_NAME }}:${{ github.sha }}
+      
+      # Adding latest tags to images
+      - name: Docker Tag
+        run: |
+          docker tag ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CLIENT_APP_NAME }}:${{ github.sha }} ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CLIENT_APP_NAME }}:latest
+          docker tag ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.SERVER_APP_NAME }}:${{ github.sha }} ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.SERVER_APP_NAME }}:latest
+
+       # Pushing images to a Azure Container registry (ACR)
+      - name: Docker Push
+        run: |
+          docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CLIENT_APP_NAME }}:latest
+          docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CLIENT_APP_NAME }}:${{ github.sha }} 
+          docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.SERVER_APP_NAME }}:latest
+          docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.SERVER_APP_NAME }}:${{ github.sha }}
+
+      # Set the target Azure Kubernetes Service (AKS) cluster. 
+      - name: Set AKS Context
+        uses: azure/aks-set-context@v1
+        with:
+          creds: '${{ secrets.AZURE_CREDENTIALS }}'
+          cluster-name: ${{ env.CLUSTER_NAME }}
+          resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
+            
+      # Create image pull secret for ACR
+      - name: Create Docker Secret
+        uses: azure/k8s-create-secret@v1
+        with:
+          container-registry-url: ${{ env.REGISTRY_NAME }}.azurecr.io
+          container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
+          container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+          secret-name: ${{ env.SECRET }}
+          namespace: ${{ env.NAMESPACE }}
+          force: true
+      
+      # Deploy client to AKS
+      - name: Deploy Client
+        uses: azure/k8s-deploy@v1
+        with:
+          manifests: |
+            client/deploy/k8s/deployment.yml
+            client/deploy/k8s/service.yml
+          images: |
+            ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CLIENT_APP_NAME }}:latest
+          imagepullsecrets: |
+            ${{ env.SECRET }}
+          namespace: ${{ env.NAMESPACE }}
+
+      # Deploy server to AKS
+      - name: Deploy Server
+        uses: azure/k8s-deploy@v1
+        with:
+          manifests: |
+            server/deploy/k8s/deployment.yml
+            server/deploy/k8s/service.yml
+          images: |
+            ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.SERVER_APP_NAME }}:latest 
+          imagepullsecrets: |
+            ${{ env.SECRET }}
+          namespace: ${{ env.NAMESPACE }}
