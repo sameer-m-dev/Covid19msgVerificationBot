@@ -16,8 +16,8 @@ env:
   CLUSTER_RESOURCE_GROUP: Dev-Sandbox
   NAMESPACE: default
   SECRET: azure-docker-auth
-  CLIENT_APP_NAME: $(( $env:GITHUB_REPOSITORY -split '/')[-1])-client
-  SERVER_APP_NAME: $(( $env:GITHUB_REPOSITORY -split '/')[-1])-server
+  CLIENT_APP_NAME: vss-client
+  SERVER_APP_NAME: vss-server
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # To allow jobs to access secrets
   ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
 
@@ -53,7 +53,7 @@ jobs:
         run: sonar-scanner
           -Dsonar.host.url=${{ secrets.SONAR_URL }}
           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}-server
+          -Dsonar.projectKey=${{ env.SERVER_APP_NAME }}
           -Dsonar.scm.provider=git
           -Dsonar.sources=server/
   
