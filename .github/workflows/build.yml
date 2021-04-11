@@ -1,5 +1,5 @@
 # Start by giving a name to your workflow
-name: pre-checks
+name: test-build-push-deploy
 
 # then define on which event, here a push
 on:
