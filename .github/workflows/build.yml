@@ -41,7 +41,7 @@ jobs:
           fetch-depth: 0
 
       # Running Sonar Scans
-      - name: 'Run analysis of the client'
+      - name: 'Run analysis of the client code'
         run: sonar-scanner
           -Dsonar.host.url=${{ secrets.SONAR_URL }}
           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
@@ -49,7 +49,7 @@ jobs:
           -Dsonar.scm.provider=git
           -Dsonar.sources=client/
       
-      - name: 'Run analysis of the server'
+      - name: 'Run analysis of the server code'
         run: sonar-scanner
           -Dsonar.host.url=${{ secrets.SONAR_URL }}
           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
@@ -122,8 +122,7 @@ jobs:
         uses: azure/k8s-deploy@v1
         with:
           manifests: |
-            client/deploy/k8s/deployment.yml
-            client/deploy/k8s/service.yml
+            client/deploy/k8s/mainConfig.yml
           images: |
             ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CLIENT_APP_NAME }}:latest
           imagepullsecrets: |
@@ -135,8 +134,7 @@ jobs:
         uses: azure/k8s-deploy@v1
         with:
           manifests: |
-            server/deploy/k8s/deployment.yml
-            server/deploy/k8s/service.yml
+            server/deploy/k8s/mainConfig.yml
           images: |
             ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.SERVER_APP_NAME }}:latest 
           imagepullsecrets: |
