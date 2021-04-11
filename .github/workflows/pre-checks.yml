@@ -39,4 +39,3 @@ jobs:
           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
           -Dsonar.scm.provider=git
-          -Dsonar.branch.name=${GITHUB_REF:11}
