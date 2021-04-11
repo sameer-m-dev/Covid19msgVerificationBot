@@ -12,7 +12,7 @@ on:
 
 # We can now build our job
 jobs:
-  build:
+  sonar-scan:
     runs-on: ubuntu-latest
 
     steps:
