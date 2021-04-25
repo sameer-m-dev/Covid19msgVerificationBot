@@ -10,6 +10,7 @@ metadata:
     stage: STAGE_PLACEHOLDER
   annotations:
     # nginx.ingress.kubernetes.io/rewrite-target: /$2
+    kubernetes.io/ingress.class: addon-http-application-routing
     nginx.ingress.kubernetes.io/server-snippet: |
       server_tokens off;
       more_clear_headers Server;
