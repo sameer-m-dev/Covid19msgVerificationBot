@@ -10,5 +10,5 @@ RUN rm /etc/nginx/conf.d/*
 RUN pwd
 RUN ls
 
-COPY ./helloworld.conf /etc/nginx/conf.d/
-COPY ./index.html /usr/share/nginx/html/
+COPY ./server/helloworld.conf /etc/nginx/conf.d/
+COPY ./server/index.html /usr/share/nginx/html/
