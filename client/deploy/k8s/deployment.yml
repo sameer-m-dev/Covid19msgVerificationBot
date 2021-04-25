@@ -16,5 +16,6 @@ spec:
     spec:
       containers:
       - name: nginx-deployment-1
+        image: WILL_BE_REPLACED
         ports:
         - containerPort: 80
