@@ -81,9 +81,8 @@ jobs:
       # Image build
       - name: Docker Build
         run: |
-          cd client/
+          ls
           docker build . -f client/Dockerfile_client -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CLIENT_APP_NAME }}:${{ github.sha }}
-          cd ../server/
           docker build . -f client/Dockerfile_server -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.SERVER_APP_NAME }}:${{ github.sha }}
       
       # Adding latest tags to images
