@@ -127,7 +127,7 @@ jobs:
             client/deploy/k8s/service.yml
             client/deploy/k8s/ingress.yml
           images: |
-            ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CLIENT_APP_NAME }}:latest
+            ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CLIENT_APP_NAME }}:${{ github.sha }}
           imagepullsecrets: |
             ${{ env.SECRET }}
           namespace: ${{ env.NAMESPACE }}
@@ -143,7 +143,7 @@ jobs:
             server/deploy/k8s/service.yml
             server/deploy/k8s/ingress.yml
           images: |
-            ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.SERVER_APP_NAME }}:latest
+            ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.SERVER_APP_NAME }}:${{ github.sha }} 
           imagepullsecrets: |
             ${{ env.SECRET }}
           namespace: ${{ env.NAMESPACE }}
