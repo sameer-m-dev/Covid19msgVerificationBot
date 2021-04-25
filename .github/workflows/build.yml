@@ -23,39 +23,39 @@ env:
 
 # We can now build our job
 jobs:
-  sonar-scan:
-    runs-on: ubuntu-latest
+  # sonar-scan:
+  #   runs-on: ubuntu-latest
 
-    steps:
-      # Use an existing action, you can look in the market place to find what you need and how to use it, to setup the sonar scanner
-      - name: Setup sonar scanner
-        uses: warchant/setup-sonar-scanner@v3
-        env:
-          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+  #   steps:
+  #     # Use an existing action, you can look in the market place to find what you need and how to use it, to setup the sonar scanner
+  #     - name: Setup sonar scanner
+  #       uses: warchant/setup-sonar-scanner@v3
+  #       env:
+  #         ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
 
-      # This is to checkout the repository
-      - name: 'Checkout repository on branch: ${{ github.REF }}'
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ github.REF }}
-          fetch-depth: 0
+  #     # This is to checkout the repository
+  #     - name: 'Checkout repository on branch: ${{ github.REF }}'
+  #       uses: actions/checkout@v2
+  #       with:
+  #         ref: ${{ github.REF }}
+  #         fetch-depth: 0
 
-      # Running Sonar Scans
-      - name: 'Run analysis of the client code'
-        run: sonar-scanner
-          -Dsonar.host.url=${{ secrets.SONAR_URL }}
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-          -Dsonar.projectKey=${{ env.CLIENT_APP_NAME }}
-          -Dsonar.scm.provider=git
-          -Dsonar.sources=client/
+  #     # Running Sonar Scans
+  #     - name: 'Run analysis of the client code'
+  #       run: sonar-scanner
+  #         -Dsonar.host.url=${{ secrets.SONAR_URL }}
+  #         -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+  #         -Dsonar.projectKey=${{ env.CLIENT_APP_NAME }}
+  #         -Dsonar.scm.provider=git
+  #         -Dsonar.sources=client/
       
-      - name: 'Run analysis of the server code'
-        run: sonar-scanner
-          -Dsonar.host.url=${{ secrets.SONAR_URL }}
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-          -Dsonar.projectKey=${{ env.SERVER_APP_NAME }}
-          -Dsonar.scm.provider=git
-          -Dsonar.sources=server/
+  #     - name: 'Run analysis of the server code'
+  #       run: sonar-scanner
+  #         -Dsonar.host.url=${{ secrets.SONAR_URL }}
+  #         -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+  #         -Dsonar.projectKey=${{ env.SERVER_APP_NAME }}
+  #         -Dsonar.scm.provider=git
+  #         -Dsonar.sources=server/
   
   dev-env:
     runs-on: ubuntu-latest
@@ -81,7 +81,9 @@ jobs:
       # Image build
       - name: Docker Build
         run: |
+          cd client/
           docker build . -f client/Dockerfile_client -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CLIENT_APP_NAME }}:${{ github.sha }}
+          cd ../server/
           docker build . -f client/Dockerfile_server -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.SERVER_APP_NAME }}:${{ github.sha }}
       
       # Adding latest tags to images
