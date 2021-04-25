@@ -1,7 +1,7 @@
 FROM nginx:mainline-alpine
 
 # Copying everything to the container
-COPY . /usr/app/
+COPY server /usr/app/
 
 # Setting WORKDIR
 WORKDIR /usr/app/
