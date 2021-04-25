@@ -83,7 +83,7 @@ jobs:
         run: |
           ls
           docker build . -f client/Dockerfile_client -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CLIENT_APP_NAME }}:${{ github.sha }}
-          docker build . -f client/Dockerfile_server -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.SERVER_APP_NAME }}:${{ github.sha }}
+          docker build . -f server/Dockerfile_server -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.SERVER_APP_NAME }}:${{ github.sha }}
       
       # Adding latest tags to images
       - name: Docker Tag
