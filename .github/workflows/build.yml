@@ -120,7 +120,7 @@ jobs:
       
       # Deploy client to AKS
       - name: Deploy Client
-        uses: azure/k8s-deploy@v1
+        uses: azure/k8s-deploy@v1.4
         with:
           manifests: |
             client/deploy/k8s/deployment.yml
@@ -132,10 +132,11 @@ jobs:
             ${{ env.SECRET }}
           namespace: ${{ env.NAMESPACE }}
           route-method: ingress
+          strategy: blue-green
 
       # Deploy server to AKS
       - name: Deploy Server
-        uses: azure/k8s-deploy@v1
+        uses: azure/k8s-deploy@v1.4
         with:
           manifests: |
             server/deploy/k8s/deployment.yml
@@ -147,3 +148,4 @@ jobs:
             ${{ env.SECRET }}
           namespace: ${{ env.NAMESPACE }}
           route-method: ingress
+          strategy: blue-green
