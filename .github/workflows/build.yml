@@ -132,7 +132,6 @@ jobs:
             ${{ env.SECRET }}
           namespace: ${{ env.NAMESPACE }}
           route-method: ingress
-          strategy: blue-green
 
       # Deploy server to AKS
       - name: Deploy Server
@@ -148,4 +147,3 @@ jobs:
             ${{ env.SECRET }}
           namespace: ${{ env.NAMESPACE }}
           route-method: ingress
-          strategy: blue-green
