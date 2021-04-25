@@ -122,7 +122,9 @@ jobs:
         uses: azure/k8s-deploy@v1
         with:
           manifests: |
-            client/mainConfig.yml
+            client/deployment.yml
+            client/service.yml
+            client/ingress.yml
           images: |
             ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CLIENT_APP_NAME }}:latest
           imagepullsecrets: |
@@ -135,7 +137,9 @@ jobs:
         uses: azure/k8s-deploy@v1
         with:
           manifests: |
-            server/mainConfig.yml
+            server/deployment.yml
+            server/service.yml
+            server/ingress.yml
           images: |
             ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.SERVER_APP_NAME }}:latest 
           imagepullsecrets: |
