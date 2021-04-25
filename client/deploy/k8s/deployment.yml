@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: nginx-deployment-1
-        image: WILL_BE_REPLACED
+        image: devsandbox.azurecr.io/vss-client
         ports:
         - containerPort: 80
