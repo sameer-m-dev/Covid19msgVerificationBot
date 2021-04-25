@@ -132,6 +132,7 @@ jobs:
             ${{ env.SECRET }}
           namespace: ${{ env.NAMESPACE }}
           route-method: ingress
+          force: true
 
       # Deploy server to AKS
       - name: Deploy Server
@@ -147,3 +148,4 @@ jobs:
             ${{ env.SECRET }}
           namespace: ${{ env.NAMESPACE }}
           route-method: ingress
+          force: true
