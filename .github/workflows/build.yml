@@ -83,7 +83,7 @@ jobs:
         run: |
           sed -i 's,SONAR_URL_VAL,${{ secrets.SONAR_URL }},g' secrets.txt
           cat secrets.txt
-          sed -i 's,SONAR_TOKEN_VAL,${{ secrets.SONAR_TOKEN_VAL }},g' secrets.txt
+          sed -i 's,SONAR_TOKEN_VAL,${{ secrets.SONAR_TOKEN }},g' secrets.txt
           cat secrets.txt
           sed -i 's,REGISTRY_USERNAME_VAL,${{ secrets.REGISTRY_USERNAME }},g' secrets.txt
           cat secrets.txt
