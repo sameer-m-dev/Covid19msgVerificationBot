@@ -81,7 +81,16 @@ jobs:
       # Image build
       - name: Docker Build
         run: |
-          ls
+          sed -i 's/SONAR_URL_VAL/${{ secrets.SONAR_URL }}/g' secrets.txt
+          cat secrets.txt
+          sed -i 's/SONAR_TOKEN_VAL/${{ secrets.PKG_VERSION }}/g' secrets.txt
+          cat secrets.txt
+          sed -i 's/REGISTRY_USERNAME_VAL/${{ secrets.REGISTRY_USERNAME }}/g' secrets.txt
+          cat secrets.txt
+          sed -i 's/REGISTRY_PASSWORD_VAL/${{ secrets.REGISTRY_PASSWORD }}/g' secrets.txt
+          cat secrets.txt
+          sed -i 's/AZURE_CREDENTIALS_VAL/${{ secrets.AZURE_CREDENTIALS }}/g' secrets.txt
+          cat secrets.txt
           docker build . -f client/Dockerfile_client -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CLIENT_APP_NAME }}:${{ github.sha }}
           docker build . -f server/Dockerfile_server -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.SERVER_APP_NAME }}:${{ github.sha }}
       
