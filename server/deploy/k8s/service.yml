@@ -1,0 +1,15 @@
+# Creating a service in the new namespace
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-deployment-2-svc
+  namespace: default
+  labels:
+    app: nginx-deployment-2
+    stage: dev
+spec:
+  ports:
+  - name: nginx-deployment-2-port
+    port: 80
+  selector:
+    app: nginx-deployment-2

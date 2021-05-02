@@ -1,0 +1,14 @@
+FROM nginx:mainline-alpine
+
+# Copying everything to the container
+COPY server /usr/app/
+
+# Setting WORKDIR
+WORKDIR /usr/app/
+
+RUN rm /etc/nginx/conf.d/*
+RUN pwd
+RUN ls
+
+COPY ./server/helloworld.conf /etc/nginx/conf.d/
+COPY ./server/index.html /usr/share/nginx/html/

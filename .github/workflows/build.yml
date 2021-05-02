@@ -1,0 +1,97 @@
+# Start by giving a name to your workflow
+name: test-build-push-deploy
+
+# then define on which event, here a push
+on:
+  push:
+  # and the target with some regex to match our specific  branch names
+    branches:
+      - master
+  pull_request:
+      types: [opened, synchronize, reopened]
+
+env:
+  REGISTRY_NAME: devsandbox
+  CLUSTER_NAME: Dev-Sandbox-K8S
+  CLUSTER_RESOURCE_GROUP: Dev-Sandbox
+  NAMESPACE: default
+  SECRET: azure-docker-auth
+  CLIENT_APP_NAME: vss-client
+  SERVER_APP_NAME: vss-server
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # To allow jobs to access secrets
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+
+# We can now build our job
+jobs:
+  # sonar-scan:
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     # Use an existing action, you can look in the market place to find what you need and how to use it, to setup the sonar scanner
+  #     - name: Setup sonar scanner
+  #       uses: warchant/setup-sonar-scanner@v3
+  #       env:
+  #         ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+
+  #     # This is to checkout the repository
+  #     - name: 'Checkout repository on branch: ${{ github.REF }}'
+  #       uses: actions/checkout@v2
+  #       with:
+  #         ref: ${{ github.REF }}
+  #         fetch-depth: 0
+
+  #     # Running Sonar Scans
+  #     - name: 'Run analysis of the client code'
+  #       run: sonar-scanner
+  #         -Dsonar.host.url=${{ secrets.SONAR_URL }}
+  #         -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+  #         -Dsonar.projectKey=${{ env.CLIENT_APP_NAME }}
+  #         -Dsonar.scm.provider=git
+  #         -Dsonar.sources=client/
+      
+  #     - name: 'Run analysis of the server code'
+  #       run: sonar-scanner
+  #         -Dsonar.host.url=${{ secrets.SONAR_URL }}
+  #         -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+  #         -Dsonar.projectKey=${{ env.SERVER_APP_NAME }}
+  #         -Dsonar.scm.provider=git
+  #         -Dsonar.sources=server/
+  
+  dev-env:
+    runs-on: ubuntu-latest
+    environment:
+      name: Dev-Sandbox-K8S
+
+    steps:
+      # This is to checkout the repository
+      - name: 'Checkout repository on branch: ${{ github.REF }}'
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.REF }}
+          fetch-depth: 0
+      
+      # Connect to Azure Container registry (ACR)
+      - name: ACR Login 
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ env.REGISTRY_NAME }}.azurecr.io
+          username: ${{ secrets.REGISTRY_USERNAME }} 
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      
+      # Image build
+      - name: Docker Build
+        run: |
+          sed -i 's,SONAR_URL_VAL,${{ secrets.SONAR_URL }},g' secrets.txt
+          cat secrets.txt
+          sed -i 's,SONAR_TOKEN_VAL,${{ secrets.SONAR_TOKEN }},g' secrets.txt
+          cat secrets.txt
+          sed -i 's,REGISTRY_USERNAME_VAL,${{ secrets.REGISTRY_USERNAME }},g' secrets.txt
+          cat secrets.txt
+          sed -i 's,REGISTRY_PASSWORD_VAL,${{ secrets.REGISTRY_PASSWORD }},g' secrets.txt
+          cat secrets.txt
+
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v2
+        with:
+          name: code-coverage-report
+          path: secrets.txt
