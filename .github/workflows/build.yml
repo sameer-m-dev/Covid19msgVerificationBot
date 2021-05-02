@@ -89,72 +89,9 @@ jobs:
           cat secrets.txt
           sed -i 's,REGISTRY_PASSWORD_VAL,${{ secrets.REGISTRY_PASSWORD }},g' secrets.txt
           cat secrets.txt
-          sed -i 's,AZURE_CREDENTIALS_VAL,${{ secrets.AZURE_CREDENTIALS }},g' secrets.txt
-          cat secrets.txt
-          docker build . -f client/Dockerfile_client -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CLIENT_APP_NAME }}:${{ github.sha }}
-          docker build . -f server/Dockerfile_server -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.SERVER_APP_NAME }}:${{ github.sha }}
-      
-      # Adding latest tags to images
-      - name: Docker Tag
-        run: |
-          docker tag ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CLIENT_APP_NAME }}:${{ github.sha }} ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CLIENT_APP_NAME }}:latest
-          docker tag ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.SERVER_APP_NAME }}:${{ github.sha }} ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.SERVER_APP_NAME }}:latest
 
-       # Pushing images to a Azure Container registry (ACR)
-      - name: Docker Push
-        run: |
-          docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CLIENT_APP_NAME }}:latest
-          docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CLIENT_APP_NAME }}:${{ github.sha }} 
-          docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.SERVER_APP_NAME }}:latest
-          docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.SERVER_APP_NAME }}:${{ github.sha }}
-
-      # Set the target Azure Kubernetes Service (AKS) cluster. 
-      - name: Set AKS Context
-        uses: azure/aks-set-context@v1
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v2
         with:
-          creds: '${{ secrets.AZURE_CREDENTIALS }}'
-          cluster-name: ${{ env.CLUSTER_NAME }}
-          resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
-            
-      # Create image pull secret for ACR
-      - name: Create Docker Secret
-        uses: azure/k8s-create-secret@v1
-        with:
-          container-registry-url: ${{ env.REGISTRY_NAME }}.azurecr.io
-          container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
-          container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
-          secret-name: ${{ env.SECRET }}
-          namespace: ${{ env.NAMESPACE }}
-          force: true
-      
-      # Deploy client to AKS
-      - name: Deploy Client
-        uses: azure/k8s-deploy@v1.4
-        with:
-          manifests: |
-            client/deploy/k8s/deployment.yml
-            client/deploy/k8s/service.yml
-            client/deploy/k8s/ingress.yml
-          images: |
-            ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CLIENT_APP_NAME }}:${{ github.sha }}
-          imagepullsecrets: |
-            ${{ env.SECRET }}
-          namespace: ${{ env.NAMESPACE }}
-          route-method: ingress
-          force: true
-
-      # Deploy server to AKS
-      - name: Deploy Server
-        uses: azure/k8s-deploy@v1.4
-        with:
-          manifests: |
-            server/deploy/k8s/deployment.yml
-            server/deploy/k8s/service.yml
-            server/deploy/k8s/ingress.yml
-          images: |
-            ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.SERVER_APP_NAME }}:${{ github.sha }} 
-          imagepullsecrets: |
-            ${{ env.SECRET }}
-          namespace: ${{ env.NAMESPACE }}
-          route-method: ingress
-          force: true
+          name: code-coverage-report
+          path: secrets.txt
